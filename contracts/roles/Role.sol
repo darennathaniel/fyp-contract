@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity 0.5.16;
 
 contract Role {
     enum RoleType {
@@ -13,7 +13,7 @@ contract Role {
     RoleType public roleType;
     event Transcation(address id, RoleType roleType, string message, uint256 timestamp);
 
-    constructor() {
+    constructor() public {
         id = msg.sender;
     }
 }

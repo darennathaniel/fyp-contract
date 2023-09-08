@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.19;
+pragma solidity 0.5.16;
 
 contract Owner {
     address public owner;
 
     event TransferOwnership(address currentOwner, address newOwner);
 
-    constructor() {
+    constructor() public {
         owner = msg.sender;
         emit TransferOwnership(address(0), owner);
     }
