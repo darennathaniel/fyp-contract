@@ -1,19 +1,26 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.5.16;
 
-contract Distributor {
-  address public owner = msg.sender;
-  uint public last_completed_migration;
+import "../Owner.sol";
 
-  modifier restricted() {
+contract Distributor is Owner {
+  mapping(address => bool) distributors;
+
+  modifier onlyDistributors() {
     require(
-      msg.sender == owner,
-      "This function is restricted to the contract's owner"
+      distributors[msg.sender],
+      "This action is restricted to Distributors only!"
     );
     _;
   }
 
-  function setCompleted(uint completed) public restricted {
-    last_completed_migration = completed;
+  function addDistributors(address userAddress) public onlyOwner {
+    require(!distributors[userAddress], "User is already a Distributor!");
+    distributors[userAddress] = true;
+  }
+
+  function deleteDistributor(address userAddress) public onlyOwner {
+    require(distributors[userAddress], "User does not exist as a Distributor!");
+    delete distributors[userAddress];
   }
 }
