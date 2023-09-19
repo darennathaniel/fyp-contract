@@ -7,6 +7,7 @@ var Distributor = artifacts.require("Distributor");
 var Manufacturer = artifacts.require("Manufacturer");
 var Retailer = artifacts.require("Retailer");
 var Supplier = artifacts.require("Supplier");
+var Orders = artifacts.require("Orders");
 
 module.exports = function (deployer) {
   deployer.deploy(Owner);
@@ -18,4 +19,5 @@ module.exports = function (deployer) {
   deployer.deploy(Manufacturer);
   deployer.deploy(Retailer);
   deployer.deploy(Supplier);
+  deployer.deploy(Orders);
 };
