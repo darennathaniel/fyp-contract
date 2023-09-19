@@ -3,7 +3,7 @@ pragma solidity 0.5.16;
 
 import "../Owner.sol";
 
-contract Supplier is Owner, Role {
+contract Supplier is Owner {
   mapping(address => bool) suppliers;
 
   modifier onlySuppliers() {

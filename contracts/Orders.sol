@@ -7,30 +7,34 @@ import "./Products.sol";
 
 contract Orders is Owner {
     uint[] private _listOfOrders;
-    uint256 private _counterOrder = 0;
+    uint private _totalHistoryOrder = 0;
+    uint256 private _counterOrderId = 0;
     uint256 private _pages = 1;
     uint private MAX_PAGES = 100;
+    enum Phase { ORDERED, SUPPLIED, MANUFACTURED, DISTRIBUTED, SOLD }
     struct Order {
         uint orderId;
         Products.Product product;
         uint quantity;
         bool exist;
+        Phase phase;
     }
     mapping(uint => Order) allActiveOrders;
     mapping(uint => Order[]) allHistoryOrders;
 
     event AddOrder(uint productId, string productName, uint quantity, uint256 timestamp);
-    event MarkOrder(uint orderId, string progress);
+    event MarkOrder(uint orderId, string progress, uint256 timestamp);
 
-    function addOrder(Products.Product product, uint quantity) public onlyOwner {
-        allActiveOrders[_counterOrder] = Order({
-            orderId: _counterOrder,
+    function addOrder(Products.Product memory product, uint quantity) public onlyOwner {
+        allActiveOrders[_counterOrderId] = Order({
+            orderId: _counterOrderId,
             product: product,
             quantity: quantity,
-            exist: true
+            exist: true,
+            phase: Phase.ORDERED
         });
-        _listOfOrders.push(_counterOrder);
-        _counterOrder += 1;
+        _listOfOrders.push(_counterOrderId);
+        _counterOrderId += 1;
         emit AddOrder(product.productId, product.productName, quantity, block.timestamp);
     }
 
@@ -47,28 +51,35 @@ contract Orders is Owner {
         return orders;
     }
 
-    // Do not use this function for completing an order
-    function markOrderProgress(uint orderId) public {
-        require(allActiveOrders[orderId].exist, "Order ID does not exist");
-        uint index = 0;
-        for(uint i = 0; i < _listOfOrders.length; i++) {
-            if(_listOfOrders[i] == orderId) {
-                index = i;
-                break;
+    function getAllHistoryOrders() public view returns (Order[] memory) {
+        Order[] memory orders = new Order[](_totalHistoryOrder);
+        for(uint i = 1; i <= _pages; i++) {
+            for(uint j = 0; j < allHistoryOrders[i].length; j++) {
+                orders[j] = allHistoryOrders[i][j];
             }
         }
-        for (uint i = index; i < _listOfOrders.length - 1; i++){
-            _listOfOrders[i] = _listOfOrders[i + 1];
-        }
-        delete _listOfOrders[_listOfOrders.length - 1];
-        _listOfOrders.length--;
-        Product memory product = allActiveOrders[productId];
-        delete allActiveOrders[productId];
-        emit DeleteProduct(product.productId, product.productName, block.timestamp);
+        return orders;
+    }
+
+    function getTotalPage() public view returns (uint) {
+        return _pages;
+    }
+
+    function getPageHistoryOrders(uint page) public view returns (Order[] memory) {
+        require(page <= _pages, 'Page limit exceeded');
+        return allHistoryOrders[page];
+    }
+
+    // Do not use this function for completing an order
+    function markOrderProgress(uint orderId, string memory progress, Phase phase) public {
+        require(allActiveOrders[orderId].exist, "Order ID does not exist");
+        allActiveOrders[orderId].phase = phase;
+        emit MarkOrder(orderId, progress, block.timestamp);
     }
 
     function completeOrder(uint orderId) public {
         require(allActiveOrders[orderId].exist, "Order ID does not exist");
+        require(allActiveOrders[orderId].phase == Phase.DISTRIBUTED, "Order hasn't been distributed");
         // Finding index of orderId in _listOfOrders
         uint index = 0;
         for(uint i = 0; i < _listOfOrders.length; i++) {
@@ -86,6 +97,7 @@ contract Orders is Owner {
         delete _listOfOrders[_listOfOrders.length - 1];
         _listOfOrders.length--;
         Order memory order = allActiveOrders[orderId];
+        order.phase = Phase.SOLD;
         delete allActiveOrders[orderId];
         // Add to history of orders
         // If the latest page array has more than the MAX_PAGES,
@@ -94,7 +106,7 @@ contract Orders is Owner {
             _pages += 1;
         }
         allHistoryOrders[_pages].push(order);
-
-        emit MarkOrder(orderId, "Complete");
+        _totalHistoryOrder += 1;
+        emit MarkOrder(orderId, "Complete", block.timestamp);
     }
 }

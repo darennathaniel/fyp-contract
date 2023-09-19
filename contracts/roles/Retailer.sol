@@ -2,10 +2,9 @@
 pragma solidity 0.5.16;
 
 import "../Owner.sol";
-import "./Roles.sol";
 
-contract Retailer is Owner, Roles {
-  mapping(address => Role) retailers;
+contract Retailer is Owner {
+  mapping(address => bool) retailers;
 
   modifier onlyRetailers() {
     require(
@@ -17,7 +16,6 @@ contract Retailer is Owner, Roles {
 
   function addRetailer(address userAddress) public onlyOwner {
     require(!retailers[userAddress], "User is already a Retailer!");
-    Role retailer = 
     retailers[userAddress] = true;
   }
 
