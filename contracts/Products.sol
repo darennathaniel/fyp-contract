@@ -5,12 +5,12 @@ pragma experimental ABIEncoderV2;
 import "./Owner.sol";
 
 contract Products is Owner {
-    uint[] private _listOfProducts;
     struct Product {
         uint productId;
         string productName;
         bool exist;
     }
+    Product[] private _listOfProducts;
     mapping(uint => Product) allProducts;
 
     event AddProduct(uint productId, string productName, uint256 timestamp);
@@ -23,7 +23,7 @@ contract Products is Owner {
             productName: productName,
             exist: true
         });
-        _listOfProducts.push(productId);
+        _listOfProducts.push(allProducts[productId]);
         emit AddProduct(productId, productName, block.timestamp);
     }
 
@@ -33,18 +33,14 @@ contract Products is Owner {
     }
 
     function getAllProducts() public view returns (Product[] memory) {
-        Product[] memory products = new Product[](_listOfProducts.length);
-        for(uint i = 0; i < _listOfProducts.length; i++) {
-            products[i] = allProducts[_listOfProducts[i]];
-        }
-        return products;
+        return _listOfProducts;
     }
 
     function deleteProduct(uint productId) public onlyOwner {
         require(allProducts[productId].exist, "Product ID does not exist");
         uint index = 0;
         for(uint i = 0; i < _listOfProducts.length; i++) {
-            if(_listOfProducts[i] == productId) {
+            if(_listOfProducts[i].productId == productId) {
                 index = i;
                 break;
             }

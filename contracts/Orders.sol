@@ -6,7 +6,6 @@ import "./Owner.sol";
 import "./Products.sol";
 
 contract Orders is Owner {
-    uint[] private _listOfOrders;
     uint private _totalHistoryOrder = 0;
     uint256 private _counterOrderId = 0;
     uint256 private _pages = 1;
@@ -19,6 +18,7 @@ contract Orders is Owner {
         bool exist;
         Phase phase;
     }
+    Order[] private _listOfOrders;
     mapping(uint => Order) allActiveOrders;
     mapping(uint => Order[]) allHistoryOrders;
 
@@ -33,7 +33,7 @@ contract Orders is Owner {
             exist: true,
             phase: Phase.ORDERED
         });
-        _listOfOrders.push(_counterOrderId);
+        _listOfOrders.push(allActiveOrders[_counterOrderId]);
         _counterOrderId += 1;
         emit AddOrder(product.productId, product.productName, quantity, block.timestamp);
     }
@@ -44,11 +44,7 @@ contract Orders is Owner {
     }
 
     function getAllActiveOrders() public view returns (Order[] memory) {
-        Order[] memory orders = new Order[](_listOfOrders.length);
-        for(uint i = 0; i < _listOfOrders.length; i++) {
-            orders[i] = allActiveOrders[_listOfOrders[i]];
-        }
-        return orders;
+        return _listOfOrders;
     }
 
     function getAllHistoryOrders() public view returns (Order[] memory) {
@@ -83,7 +79,7 @@ contract Orders is Owner {
         // Finding index of orderId in _listOfOrders
         uint index = 0;
         for(uint i = 0; i < _listOfOrders.length; i++) {
-            if(_listOfOrders[i] == orderId) {
+            if(_listOfOrders[i].orderId == orderId) {
                 index = i;
                 break;
             }
