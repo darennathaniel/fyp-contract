@@ -7,6 +7,7 @@ import "../Orders.sol";
 
 contract Supplier is Owner {
   mapping(address => bool) private _suppliers;
+  address[] private _listOfSuppliers;
   Orders.Order[] private _listOfSuppliedOrders;
   mapping(uint => Orders.Order) allSuppliedOrders;
 
@@ -23,6 +24,10 @@ contract Supplier is Owner {
 
   function isSupplier(address userAddress) public view returns (bool) {
     return _suppliers[userAddress];
+  }
+
+  function getSuppliers() public view onlyOwner returns (address[] memory) {
+    return _listOfSuppliers;
   }
 
   function addSupply(Orders.Order memory order) public onlySuppliers {
@@ -65,10 +70,27 @@ contract Supplier is Owner {
   function addSupplier(address userAddress) public onlyOwner {
     require(!_suppliers[userAddress], "User is already a Supplier!");
     _suppliers[userAddress] = true;
+    _listOfSuppliers.push(userAddress);
   }
 
   function deleteSupplier(address userAddress) public onlyOwner {
     require(_suppliers[userAddress], "User does not exist as a Supplier!");
+    // Finding index of orderId in _listOfSuppliers
+    uint index = 0;
+    for(uint i = 0; i < _listOfSuppliers.length; i++) {
+        if(_listOfSuppliers[i] == userAddress) {
+            index = i;
+            break;
+        }
+    }
+    // Pushes the found index to the latest index of the array
+    // And delete the last index
+    // Also delete from allSuppliedOrders
+    for (uint i = index; i < _listOfSuppliers.length - 1; i++){
+        _listOfSuppliers[i] = _listOfSuppliers[i + 1];
+    }
+    delete _listOfSuppliers[_listOfSuppliers.length - 1];
+    _listOfSuppliers.length--;
     delete _suppliers[userAddress];
   }
 }

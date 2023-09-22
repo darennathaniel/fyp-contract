@@ -84,7 +84,7 @@ contract("Supplier", (accounts) => {
     assert.equal(
       Array.isArray(supplies),
       true,
-      "returned product should be an array"
+      "returned supplies should be an array"
     );
     assert.equal(
       supplies.length,
@@ -147,6 +147,35 @@ contract("Supplier", (accounts) => {
       assert.include(
         err.message,
         "revert This action is restricted to Suppliers only!"
+      );
+    }
+  });
+  it("Get a list of suppliers by owner should return a list of suppliers", async () => {
+    const suppliers = await supplier.getSuppliers.call({ from: owner });
+    assert.equal(
+      Array.isArray(suppliers),
+      true,
+      "returned suppliers should be an array"
+    );
+    assert.equal(
+      suppliers.length,
+      1,
+      "The length of the array should be 1 since we only insert 1 data"
+    );
+    assert.equal(
+      suppliers[0],
+      supplierAccount,
+      "Since we insert only 1 supplier, first index should be supplier account"
+    );
+  });
+  it("Get a list of suppliers by not owner should throw an error", async () => {
+    try {
+      await supplier.getSuppliers.call({ from: accounts[2] });
+      assert.fail("The transaction should have thrown an error");
+    } catch (err) {
+      assert.include(
+        err.message,
+        "revert This function is restricted to the contract's owner"
       );
     }
   });
