@@ -1801,12 +1801,12 @@
         }
       },
       "links": {},
-      "address": "0x0cC54292c01752DCE65e389C40edc93ffCCE156C",
-      "transactionHash": "0xf8e8ed2e4ccf3366b6453c9e3f05bbbcedc40797b7017b3ad4618e461ac9fa79"
+      "address": "0x43C546f25bdF5F798E88BDBD6a44aee83D0B2cb5",
+      "transactionHash": "0xfe95c9779d2fbc48d1daf066d151d76999602e9a9082a70307533e87d3e39290"
     }
   },
   "schemaVersion": "3.4.15",
-  "updatedAt": "2023-09-21T11:01:55.325Z",
+  "updatedAt": "2023-09-22T08:22:26.617Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

@@ -6,7 +6,7 @@ import "../Owner.sol";
 import "../Orders.sol";
 
 contract Supplier is Owner {
-  mapping(address => bool) suppliers;
+  mapping(address => bool) private _suppliers;
   Orders.Order[] private _listOfSuppliedOrders;
   mapping(uint => Orders.Order) allSuppliedOrders;
 
@@ -15,10 +15,14 @@ contract Supplier is Owner {
 
   modifier onlySuppliers() {
     require(
-      suppliers[msg.sender],
+      _suppliers[msg.sender],
       "This action is restricted to Suppliers only!"
     );
     _;
+  }
+
+  function isSupplier(address userAddress) public view returns (bool) {
+    return _suppliers[userAddress];
   }
 
   function addSupply(Orders.Order memory order) public onlySuppliers {
@@ -29,7 +33,7 @@ contract Supplier is Owner {
   }
 
   function getSupply(uint orderId) public view returns (Orders.Order memory) {
-    require(allSuppliedOrders[orderId].exist, "Order has not been supplied!");
+    require(allSuppliedOrders[orderId].exist, "Order has not been supplied or is being processed!");
     return allSuppliedOrders[orderId];
   }
 
@@ -59,12 +63,12 @@ contract Supplier is Owner {
   }
 
   function addSupplier(address userAddress) public onlyOwner {
-    require(!suppliers[userAddress], "User is already a Supplier!");
-    suppliers[userAddress] = true;
+    require(!_suppliers[userAddress], "User is already a Supplier!");
+    _suppliers[userAddress] = true;
   }
 
   function deleteSupplier(address userAddress) public onlyOwner {
-    require(suppliers[userAddress], "User does not exist as a Supplier!");
-    delete suppliers[userAddress];
+    require(_suppliers[userAddress], "User does not exist as a Supplier!");
+    delete _suppliers[userAddress];
   }
 }
